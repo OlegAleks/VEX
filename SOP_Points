@@ -13,3 +13,9 @@ foreach(string s; a){
     path = concat(path, s);
     s@path = path;
 }
+
+// Clip by camera frustum
+vector P_ndc = toNDC(chs("camera"), @P);
+float over = chf("overscan");
+if(max(P_ndc.x, P_ndc.y)>(1+over) || min(P_ndc.x, P_ndc.y)<(0-over)) removepoint(geoself(), @ptnum);
+
