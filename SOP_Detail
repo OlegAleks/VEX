@@ -8,3 +8,27 @@ while(i<n)
     printf("%s\n", mat);
     i++;
 }
+
+// Creates Helix
+float radius = chf("radius");
+vector newP = set(radius, 0, 0);
+int newPr = addprim(geoself(), "polyline");
+int c = chi("npt");
+matrix m;
+float angle = chf("angle");
+float y = chf("offset_int_y");
+vector scale = {1,1,1};
+for(int i=0; i<c; i++)
+{   
+    m = ident();
+    rotate(m, radians(angle*i), set(0,1,0));
+    float yy = fit(y*i, 0, y*(c-1), 0, 1);
+    float scale_ramp = chramp("scale", yy);
+    scale(m, scale*scale_ramp);
+    float den = chramp("density", clamp(yy, 1e-05, 1));
+    float overlap = 1-chramp("overlap", yy);
+    translate(m, set(0,y*den*overlap,0)*i);
+//    printf("i=%g, angle=%g\n", i, angle);
+    int newPt = addpoint(geoself(), newP*m);
+    addvertex(geoself(), newPr, newPt);
+}
