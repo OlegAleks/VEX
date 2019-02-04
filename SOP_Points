@@ -1,0 +1,15 @@
+// If your geometry for Bullet sim uses Baked ODE primitives, then you might want to get cleared geo to cache on disk.
+// So this code creates attributes so that copy_to_points SOP will 100% match to geometry from sim.
+vector pivot = primintrinsic(geoself(), "pivot", @ptnum);
+matrix3 m = primintrinsic(geoself(), "transform", @ptnum);
+p@orient = quaternion(m);
+matrix xf = primintrinsic(geoself(), "packedfulltransform", @ptnum);
+vector pscale = cracktransform(XFORM_TRS, XFORM_XYZ, 2, {0,0,0}, xf);
+f@pscale = pscale[0];
+v@P = {0,0,0}*xf + pivot;
+string a[] = array(@name, "/Shape_", @name);
+string path = "/";
+foreach(string s; a){
+    path = concat(path, s);
+    s@path = path;
+}
