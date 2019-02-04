@@ -1,0 +1,13 @@
+// Remove by group name
+string suf = "piece";
+string name_array[];
+for(int i = 0; i<10; i++)
+{
+    insert(name_array, i, concat(suf, itoa(i)));
+}
+foreach(string name; name_array)
+{
+    int g = inprimgroup(geoself(), name, @primnum);
+    if(g) removeprim(geoself(), @primnum, 1);
+}
+
