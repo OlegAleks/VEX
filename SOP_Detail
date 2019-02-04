@@ -1,0 +1,10 @@
+// Prints a list of unique attributes in geo
+int n = nuniqueval(0, "prim", "shop_materialpath");
+int i = 0;
+string mat;
+while(i<n)
+{
+    mat = uniqueval(0, "prim", "shop_materialpath", i);
+    printf("%s\n", mat);
+    i++;
+}
