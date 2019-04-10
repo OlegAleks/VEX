@@ -1,0 +1,14 @@
+// Clip by camera frustum
+vector P_ndc = toNDC(chs("camera"), @P);
+float over = chf("overscan");
+if(max(P_ndc.x, P_ndc.y)>(1+over) || min(P_ndc.x, P_ndc.y)<(0-over)) removepoint(geoself(), @ptnum);
+
+// Instance attribute for RedShift
+f@pscale *=0.01;
+int num = chi("num");
+if(num>0)
+{
+   int c = @ptnum%num;
+   string path = concat("obj", itoa(c+1));
+   s@instance = chs(path);
+}
