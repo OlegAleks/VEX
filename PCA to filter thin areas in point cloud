@@ -1,0 +1,62 @@
+int handle = pcopen(1, "P", @P, chf("radius"), chi("max_points"));
+int nf = pcnumfound(handle);
+vector x; // point position
+vector M=0; // expected value
+vector Mx2=0; // avarage sum of x*x
+float Mxy=0, Mxz=0, Mzy=0;
+vector D; // variance = Mx2 - D_t2
+float correct = chf("dec_error_correct");
+while(pciterate(handle))
+{
+    pcimport(handle, "P", x);
+    x*=correct;
+    M+=x;
+    Mx2+=pow(x, 2);
+    Mxy += x.x*x.y;
+    Mxz += x.x*x.z;
+    Mzy += x.z*x.y;
+}
+M /= nf;
+Mxy = Mxy/nf - M.x*M.y;
+Mxz = Mxz/nf - M.x*M.z;
+Mzy = Mzy/nf - M.z*M.y;
+Mx2 /= nf;
+D = Mx2 - M*M;
+matrix3 cov; // covariance matrix
+vector row1 = set(D.x, Mxy, Mxz);
+vector row2 = set(Mxy, D.y, Mzy);
+vector row3 = set(Mxz, Mzy, D.z);
+vector a[] = array(row1, row2, row3);
+cov = set(a);
+// SVD 
+vector aa = {1,0,0};
+vector xi = aa;
+float inorm;
+vector Axi;
+// Power Iteration Method gives eigenvector with Largest eigenvalue
+int iter = chi("svd_iterations");
+for(int i =0; i<iter; i++)
+{
+    Axi = xi*cov;
+    inorm = max(abs(Axi));
+    xi = Axi/inorm;
+}
+vector N = normalize(xi);
+float Emax = inorm;
+
+// Inverse Power Iteration Method gives eigenvector with Smallest eigenvalue
+cov = invert(cov);
+xi = aa;
+for(int i=0; i<iter; i++)
+{
+    Axi = xi*cov;
+    inorm = max(abs(Axi));
+    xi = Axi/inorm;
+}
+vector up = normalize(xi);
+vector Z = cross(N, up);
+float Emin = inorm;
+if(fit(Emax/Emin, 1, 200, 0, 1) > chf("thin_threshold")) removepoint(geoself(), @ptnum);
+//v@N = N;
+//v@up = up;
+//v@z = Z;
