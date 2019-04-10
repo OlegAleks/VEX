@@ -1,0 +1,42 @@
+int handle = pcopen(1, "P", @P, chf("radius"), chi("max_points"));
+int i=0, newPt;
+vector P, newP, vv;
+float dist;
+vector candP[]; // Array of candidate point positions
+vector tmp[]; // temp array
+while(pciterate(handle))
+{
+    if(i==0) {i++; continue;}
+    pcimport(handle, "P", P);
+    pcimport(handle, "point.distance", dist);
+    pcimport(handle, "v", vv);
+    //float dot = dot(normalize(v@v), normalize(vv));
+    // Add condidate point positions to array
+    if(dist>f@pscale*0.3) 
+    {
+        vector d = (@P + P)*0.5;
+        append(tmp, d);
+    }
+}
+pcclose(handle);
+foreach(vector PP; tmp)
+{
+    int handle2 = pcopen(1, "P", PP, f@pscale*0.5, 1);
+    int nf2 = pcnumfound(handle2);
+    if(nf2==0) append(candP, PP);
+    pcclose(handle2);
+}
+if(len(candP)>0)
+{
+    foreach(newP; candP);
+    {
+        newPt = addpoint(geoself(), newP);
+        int new_id = detail(1, "id", 0)+1;
+        setpointattrib(geoself(), "pscale", newPt, f@pscale, "set");
+        setpointattrib(geoself(), "v", newPt, v@v, "set");
+        setpointattrib(geoself(), "Cd", newPt, {0,1,0}, "set");
+        setpointattrib(geoself(), "id", newPt, new_id, "set");
+        setpointgroup(geoself(), "new", newPt, 1, "set");
+    }
+}
+removepoint(geoself(), @ptnum);
